@@ -70,7 +70,7 @@
          "web" : "https://github.com/spiritloose/Compress-Zstd"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_contributors" : [
       "Jiro Nishiguchi <jiro@cpan.org>"
    ],

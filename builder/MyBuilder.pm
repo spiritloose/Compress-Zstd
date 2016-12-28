@@ -39,9 +39,8 @@ sub ACTION_build {
     $self->ACTION_ppport_h() unless -e 'ppport.h';
     unless (-f "$LIBZSTD_DIR/libzstd.a") {
         local $ENV{CFLAGS} = '-O3 -fPIC';
-        $self->do_system('make' => '-C', $LIBZSTD_DIR, 'libzstd');
+        $self->do_system('make' => '-C', $LIBZSTD_DIR, 'libzstd.a');
     }
-    $self->do_system('rm', '-f', glob("$LIBZSTD_DIR/*.$Config{so}"));
     $self->SUPER::ACTION_build();
 }
 

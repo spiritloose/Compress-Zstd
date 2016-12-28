@@ -16,8 +16,8 @@ is decompress(\compress(\$src)), $src, 'ScalarRef';
 
 decompress("1");
 
-is ZSTD_VERSION_NUMBER, 10100;
-is ZSTD_VERSION_STRING, '1.1.0';
+is ZSTD_VERSION_NUMBER, 10102;
+is ZSTD_VERSION_STRING, '1.1.2';
 is ZSTD_MAX_CLEVEL, 22;
 
 done_testing;

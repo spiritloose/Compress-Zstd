@@ -7,6 +7,7 @@ use 5.008_001;
 
 use strict;
 use warnings;
+use lib '.';
 use utf8;
 
 use builder::MyBuilder;

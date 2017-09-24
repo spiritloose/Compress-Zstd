@@ -112,8 +112,8 @@ PPCODE:
         XSRETURN_UNDEF;
     }
     src = SvPVbyte(source, src_len);
-    dest_len = ZSTD_getDecompressedSize(src, src_len);
-    if (dest_len == ULLONG_MAX) {
+    dest_len = ZSTD_getFrameContentSize(src, src_len);
+    if (dest_len == ULLONG_MAX || dest_len == ZSTD_CONTENTSIZE_UNKNOWN || dest_len == ZSTD_CONTENTSIZE_ERROR) {
         XSRETURN_UNDEF;
     }
     dest = sv_2mortal(newSV(dest_len + 1));

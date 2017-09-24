@@ -15,7 +15,7 @@ sub new {
         $self->do_system('git', 'submodule', 'update', '--init');
     }
     my @extra_compiler_flags = (qw/
-        -Wall -Wextra -Wno-duplicate-decl-specifier -Wno-parentheses
+        -Wall -Wextra -Wno-parentheses
         -Wno-unused -Wno-unused-parameter
     /, ('-I.', "-I$LIBZSTD_DIR"));
     my $ld = $self->config('ld');

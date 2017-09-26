@@ -26,4 +26,6 @@ $result .= $decompressor->decompress(substr($output, 0, 3));
 $result .= $decompressor->decompress(substr($output, 3, -1));
 is $result, 'abc';
 
+is decompress($output), 'abc';
+
 done_testing;

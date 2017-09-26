@@ -27,6 +27,43 @@ typedef struct Compress__Zstd__Decompressor_s {
     size_t bufsize;
 }* Compress__Zstd__Decompressor;
 
+static SV*
+decompress_using_streaming(pTHX_ const char* src, size_t srcSize)
+{
+    char* buf;
+    size_t bufsize;
+    SV* output;
+    ZSTD_inBuffer inbuf = { src, srcSize, 0 };
+    int iserror = 0;
+
+    ZSTD_DStream* stream = ZSTD_createDStream();
+    if (stream == NULL) {
+        croak("Failed to call ZSTD_createDStream()");
+    }
+    ZSTD_initDStream(stream);
+
+    bufsize = ZSTD_DStreamOutSize();
+    Newx(buf, bufsize, char);
+
+    output = newSVpv("", 0);
+    while (inbuf.pos < inbuf.size) {
+        ZSTD_outBuffer outbuf = { buf, bufsize, 0 };
+        size_t ret = ZSTD_decompressStream(stream, &outbuf, &inbuf);
+        if (ZSTD_isError(ret)) {
+            iserror = 1;
+            break;
+        }
+        sv_catpvn(output, outbuf.dst, outbuf.pos);
+    }
+    Safefree(buf);
+    ZSTD_freeDStream(stream);
+    if (iserror != 0) {
+        SvREFCNT_dec(output);
+        return NULL;
+    }
+    return output;
+}
+
 MODULE = Compress::Zstd PACKAGE = Compress::Zstd
 
 BOOT:
@@ -126,7 +163,16 @@ PPCODE:
     }
     src = SvPVbyte(source, src_len);
     dest_len = ZSTD_getFrameContentSize(src, src_len);
-    if (dest_len == ULLONG_MAX || dest_len == ZSTD_CONTENTSIZE_UNKNOWN || dest_len == ZSTD_CONTENTSIZE_ERROR) {
+    if (dest_len == ZSTD_CONTENTSIZE_UNKNOWN) {
+        SV* output = decompress_using_streaming(aTHX_ src, src_len);
+        if (output == NULL) {
+            XSRETURN_UNDEF;
+        }
+        EXTEND(SP, 1);
+        mPUSHs(output);
+        XSRETURN(1);
+    }
+    if (dest_len == ULLONG_MAX || ZSTD_isError(dest_len)) {
         XSRETURN_UNDEF;
     }
     dest = sv_2mortal(newSV(dest_len + 1));
@@ -140,6 +186,7 @@ PPCODE:
     SvPOK_on(dest);
     EXTEND(SP, 1);
     PUSHs(dest);
+    XSRETURN(1);
 
 MODULE = Compress::Zstd PACKAGE = Compress::Zstd::Compressor
 

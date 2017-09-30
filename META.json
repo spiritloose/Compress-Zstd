@@ -4,13 +4,13 @@
       ", Jiro Nishiguchi"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.0.13, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Minilla/v3.0.13, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "bsd"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "Compress-Zstd",
    "no_index" : {
@@ -23,7 +23,7 @@
          "examples",
          "author",
          "builder",
-         "vendor"
+         "ext"
       ]
    },
    "prereqs" : {
@@ -75,5 +75,5 @@
       "Jiro Nishiguchi <jiro@cpan.org>",
       "Jiro Nishiguchi <spiritloose@users.noreply.github.com>"
    ],
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+   "x_serialization_backend" : "JSON::PP version 2.94"
 }

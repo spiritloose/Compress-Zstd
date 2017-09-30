@@ -2,6 +2,9 @@ Revision history for Perl extension Compress-Zstd
 
 {{$NEXT}}
 
+0.10 2017-09-30T07:13:12Z
+    - Add streaming interfaces
+
 0.06 2017-09-24T12:23:22Z
     - zstd 1.3.1
     - Support >= Perl 5.26.0 (@INC problem)

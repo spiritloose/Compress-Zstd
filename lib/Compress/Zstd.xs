@@ -221,6 +221,7 @@ CODE:
     Newx(buf, bufsize, char);
     self->buf = buf;
     self->bufsize = bufsize;
+    self->status = 0 ;
     RETVAL = self;
 OUTPUT:
     RETVAL
@@ -359,6 +360,7 @@ CODE:
     Newx(buf, bufsize, char);
     self->buf = buf;
     self->bufsize = bufsize;
+    self->status = 0 ;
     RETVAL = self;
 OUTPUT:
     RETVAL

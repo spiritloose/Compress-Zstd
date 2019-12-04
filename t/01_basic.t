@@ -23,4 +23,15 @@ is ZSTD_VERSION_NUMBER, 10403;
 is ZSTD_VERSION_STRING, '1.4.3';
 is ZSTD_MAX_CLEVEL, 22;
 
+{
+    # Test an empty string
+    my $src = "";
+    ok my $compressed = compress($src, 42);
+    isnt $src, $compressed;
+    my $decompressed = decompress($compressed);
+    is uncompress($compressed), $decompressed, 'alias';
+    isnt $compressed, $decompressed;
+    is $decompressed, $src;
+}
+
 done_testing;

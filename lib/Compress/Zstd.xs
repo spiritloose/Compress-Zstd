@@ -19,12 +19,14 @@ typedef struct Compress__Zstd__Compressor_s {
     ZSTD_CStream* stream;
     char* buf;
     size_t bufsize;
+    size_t status ;
 }* Compress__Zstd__Compressor;
 
 typedef struct Compress__Zstd__Decompressor_s {
     ZSTD_DStream* stream;
     char* buf;
     size_t bufsize;
+    size_t status ;
 }* Compress__Zstd__Decompressor;
 
 typedef ZSTD_CCtx* Compress__Zstd__CompressionContext;
@@ -227,6 +229,7 @@ CODE:
     Newx(buf, bufsize, char);
     self->buf = buf;
     self->bufsize = bufsize;
+    self->status = 0 ;
     RETVAL = self;
 OUTPUT:
     RETVAL
@@ -251,7 +254,7 @@ CODE:
     output = newSVpv("", 0);
     while (inbuf.pos < inbuf.size) {
         ZSTD_outBuffer outbuf = { self->buf, self->bufsize, 0 };
-        size_t toread = ZSTD_compressStream(self->stream, &outbuf, &inbuf);
+        size_t toread = self->status = ZSTD_compressStream(self->stream, &outbuf, &inbuf);
         if (ZSTD_isError(toread)) {
             croak("%s", ZSTD_getErrorName(toread));
         }
@@ -271,7 +274,7 @@ CODE:
     output = newSVpv("", 0);
     do {
         ZSTD_outBuffer outbuf = { self->buf, self->bufsize, 0 };
-        ret = ZSTD_flushStream(self->stream, &outbuf);
+        ret = self->status = ZSTD_flushStream(self->stream, &outbuf);
         if (ZSTD_isError(ret)) {
             croak("%s", ZSTD_getErrorName(ret));
         }
@@ -291,13 +294,39 @@ CODE:
     output = newSVpv("", 0);
     do {
         ZSTD_outBuffer outbuf = { self->buf, self->bufsize, 0 };
-        ret = ZSTD_endStream(self->stream, &outbuf);
+        ret = self->status = ZSTD_endStream(self->stream, &outbuf);
         if (ZSTD_isError(ret)) {
             croak("%s", ZSTD_getErrorName(ret));
         }
         sv_catpvn(output, outbuf.dst, outbuf.pos);
     } while (ret > 0);
     RETVAL = output;
+OUTPUT:
+    RETVAL
+
+
+size_t
+status(self)
+    Compress::Zstd::Compressor self;
+CODE:
+    RETVAL = self->status;
+OUTPUT:
+    RETVAL
+
+unsigned
+isError(self)
+    Compress::Zstd::Compressor self;
+CODE:
+    RETVAL = ZSTD_isError(self->status);
+OUTPUT:
+    RETVAL
+
+
+const char *
+getErrorName(self)
+    Compress::Zstd::Compressor self;
+CODE:
+    RETVAL = ZSTD_getErrorName(self->status);
 OUTPUT:
     RETVAL
 
@@ -339,6 +368,7 @@ CODE:
     Newx(buf, bufsize, char);
     self->buf = buf;
     self->bufsize = bufsize;
+    self->status = 0 ;
     RETVAL = self;
 OUTPUT:
     RETVAL
@@ -362,13 +392,45 @@ CODE:
     output = newSVpv("", 0);
     while (inbuf.pos < inbuf.size) {
         ZSTD_outBuffer outbuf = { self->buf, self->bufsize, 0 };
-        size_t ret = ZSTD_decompressStream(self->stream, &outbuf, &inbuf);
+        size_t ret = self->status = ZSTD_decompressStream(self->stream, &outbuf, &inbuf);
         if (ZSTD_isError(ret)) {
             croak("%s", ZSTD_getErrorName(ret));
         }
         sv_catpvn(output, outbuf.dst, outbuf.pos);
     }
     RETVAL = output;
+OUTPUT:
+    RETVAL
+
+size_t
+status(self)
+    Compress::Zstd::Decompressor self;
+CODE:
+    RETVAL = self->status;
+OUTPUT:
+    RETVAL
+
+unsigned
+isError(self)
+    Compress::Zstd::Decompressor self;
+CODE:
+    RETVAL = ZSTD_isError(self->status);
+OUTPUT:
+    RETVAL
+
+unsigned
+isEndFrame(self)
+    Compress::Zstd::Decompressor self;
+CODE:
+    RETVAL = self->status == 0;
+OUTPUT:
+    RETVAL
+
+const char *
+getErrorName(self)
+    Compress::Zstd::Decompressor self;
+CODE:
+    RETVAL = ZSTD_getErrorName(self->status);
 OUTPUT:
     RETVAL
 

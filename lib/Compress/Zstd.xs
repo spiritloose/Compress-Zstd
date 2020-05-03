@@ -204,6 +204,7 @@ BOOT:
 {
     HV* stash = gv_stashpv("Compress::Zstd::Compressor", 1);
     newCONSTSUB(stash, "ZSTD_CSTREAM_IN_SIZE", newSViv(ZSTD_CStreamInSize()));
+    newCONSTSUB(stash, "ZSTD_c_windowLog", newSVuv(ZSTD_c_windowLog));
 }
 
 Compress::Zstd::Compressor
@@ -237,6 +238,17 @@ init(self, level = 1)
     int level;
 CODE:
     ZSTD_initCStream(self->stream, level);
+
+void
+set_parameter(self, cParam, value)
+    Compress::Zstd::Compressor self;
+    unsigned long cParam;
+    int value;
+CODE:
+    size_t ret = ZSTD_CCtx_setParameter( self->stream, (ZSTD_cParameter)cParam, value );
+    if (ZSTD_isError(ret)) {
+        croak("%s", ZSTD_getErrorName(ret));
+    }
 
 SV*
 compress(self, input)
@@ -317,6 +329,7 @@ BOOT:
 {
     HV* stash = gv_stashpv("Compress::Zstd::Decompressor", 1);
     newCONSTSUB(stash, "ZSTD_DSTREAM_IN_SIZE", newSViv(ZSTD_DStreamInSize()));
+    newCONSTSUB(stash, "ZSTD_d_windowLogMax", newSVuv(ZSTD_d_windowLogMax));
 }
 
 Compress::Zstd::Decompressor
@@ -348,6 +361,17 @@ init(self)
     Compress::Zstd::Decompressor self;
 CODE:
     ZSTD_initDStream(self->stream);
+
+void
+set_parameter(self, dParam, value)
+    Compress::Zstd::Decompressor self;
+    unsigned long dParam;
+    int value;
+CODE:
+    size_t ret = ZSTD_DCtx_setParameter( self->stream, (ZSTD_dParameter)dParam, value );
+    if (ZSTD_isError(ret)) {
+        croak("%s", ZSTD_getErrorName(ret));
+    }
 
 SV*
 decompress(self, input)
